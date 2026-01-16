@@ -1,6 +1,6 @@
 [project]
 name = "jsonframe"
-version = "0.0.1"
+version = "0.0.2"
 description = "A small, typed JSON frame (envelope) for API responses and messages."
 readme = "README.md"
 license = { file = "LICENSE" }
