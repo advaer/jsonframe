@@ -21,7 +21,12 @@ classifiers = [
   "Typing :: Typed",
 ]
 
-dependencies = []
+dependencies = [
+    "pydantic>=2.12.5",
+]
+
+[project.optional-dependencies]
+fastapi = ["fastapi>=0.100", "starlette>=0.27"]
 
 [project.urls]
 Homepage = "https://github.com/advaer/jsonframe"
