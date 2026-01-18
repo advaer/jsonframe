@@ -11,16 +11,16 @@ def ok(data: T | None = None, *, meta: dict[str, Any] | None = None) -> Frame[T]
     return Frame[T](data=data, meta=meta)
 
 def ok_paged(
-    items: list[T],
+    data: list[T],
     *,
     total: int,
     limit: int,
     offset: int,
     meta: dict[str, Any] | None = None,
 ) -> Frame[list[T]]:
-    page = PageMeta(total=total, limit=limit, offset=offset).model_dump()
+    page = PageMeta(total=total, limit=limit, offset=offset).model_dump(exclude_none=True)
     merged_meta = {**(meta or {}), "page": page}
-    return ok(items, meta=merged_meta)
+    return ok(data, meta=merged_meta)
 
 def error(
     *,

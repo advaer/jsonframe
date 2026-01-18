@@ -13,7 +13,7 @@ def test_list_ok_payload():
 
 
 def test_paged_meta_shape():
-    frame = ok_paged(items=[{"id": 1}], total=10, limit=5, offset=0)
+    frame = ok_paged(data=[{"id": 1}], total=10, limit=5, offset=0)
     assert frame.meta["page"]["total"] == 10
     assert frame.meta["page"]["limit"] == 5
     assert frame.meta["page"]["offset"] == 0

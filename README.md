@@ -27,41 +27,30 @@ A tiny, opinionated helper for **consistent JSON API response frames**.
 ```
 
 - `data` contains the business payload (object, list, scalar, or `null`)
-- `meta` contains non-business metadata (optional, always an object)
+- `meta` contains non-business metadata (optional, always an object). Typical examples include pagination info, request IDs, timing data, or feature flags — never domain data.
 
 ### Error
 ```json
 {
-  "detail": {
-    "code": "not_found",
-    "message": "User not found",
-    "context": { ... },
-    "trace_id": "..."
+  "error": {
+    "code": "validation_error",
+    "message": "Invalid request payload"
   },
   "meta": { ... }
 }
 ```
 
-- Errors are represented by a **single error object**
+- Errors are represented by a **single error object** (no arrays, no partial failures)
 - HTTP status code communicates severity
-- `context`, `trace_id` and `meta` are optional
+- `meta` is optional
+- Additional fields may be included for diagnostics (e.g. `context`, `trace_id`)
 
 ---
 
 ## Examples
 
 #### Example of success payload and framed result
-Given this business object:
-```json
-{
-  "id": 42,
-  "name": "Ada Lovelace",
-  "email": "ada@example.com",
-  "role": "admin"
-}
-```
-
-Using:
+Given the user object and request_id:
 ```python
 from jsonframe import ok
 
@@ -99,6 +88,7 @@ return error(
     code="not_found",
     message="User not found",
     context={"user_id": 42},
+    trace_id="9f3c2a8e7d",
     meta={"request_id": "req_123"},
 )
 ```
@@ -110,7 +100,8 @@ return error(
     "message": "User not found",
     "context": {
       "user_id": 42
-    }
+    },
+    "trace_id": "9f3c2a8e7d"
   },
   "meta": {
     "request_id": "req_123"
@@ -127,14 +118,15 @@ return error(
 uv add jsonframe
 ```
 
-Required dependency:
-- `pydantic >= 2.0`
+Core dependency:
+- `pydantic >= 2.0` (used for lightweight validation and serialization)
 
 ---
 
 ### Optional FastAPI integration
 
 FastAPI helpers are **optional** and not installed by default.
+FastAPI wraps error payloads under `detail`; `http_error()` applies this automatically without changing the core error shape.
 
 ```bash
 uv add "jsonframe[fastapi]"
@@ -152,7 +144,7 @@ This installs:
 ```python
 from jsonframe import ok
 
-return ok({"id": 1, "name": "Ada"})
+return ok(data={"id": 1, "name": "Ada"})
 ```
 
 ### Empty success
@@ -166,7 +158,7 @@ return ok()
 ```python
 from jsonframe import ok
 
-return ok([{"id": 1}, {"id": 2}])
+return ok(data=[{"id": 1}, {"id": 2}])
 ```
 
 ### Paginated list
@@ -174,7 +166,7 @@ return ok([{"id": 1}, {"id": 2}])
 from jsonframe import ok_paged
 
 return ok_paged(
-    items=[{"id": 1}, {"id": 2}],
+    data=[{"id": 1}, {"id": 2}],
     total=120,
     limit=20,
     offset=40,
@@ -213,6 +205,7 @@ return error(
 ## FastAPI helpers (optional)
 
 ### Returning framed JSON with status code
+`ok()` returns a plain JSON-serializable `dict`; `json_frame()` converts it into a FastAPI `Response`.
 ```python
 from jsonframe.fastapi import json_frame
 from jsonframe import ok
@@ -231,7 +224,7 @@ raise http_error(
     404,
     code="not_found",
     message="User not found",
-    details={"user_id": 42},
+    context={"user_id": 42},
 )
 ```
 
