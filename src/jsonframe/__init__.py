@@ -1,13 +1,13 @@
-from .models import ErrorFrame, ErrorInfo, Frame, PageMeta
-from .builders import fail, list_ok, ok, paged
+from .models import ErrorInfo, Frame, PageMeta
+from .builders import error, ok, ok_paged
 
 __all__ = [
     "Frame",
-    "ErrorFrame",
     "ErrorInfo",
     "PageMeta",
     "ok",
-    "list_ok",
-    "paged",
-    "fail",
+    "ok_paged",
+    "error",
 ]
+
+__version__ = "0.1.0"

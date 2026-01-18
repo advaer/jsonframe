@@ -32,10 +32,10 @@ A tiny, opinionated helper for **consistent JSON API response frames**.
 ### Error
 ```json
 {
-  "error": {
+  "detail": {
     "code": "not_found",
     "message": "User not found",
-    "details": { ... },
+    "context": { ... },
     "trace_id": "..."
   },
   "meta": { ... }
@@ -44,7 +44,7 @@ A tiny, opinionated helper for **consistent JSON API response frames**.
 
 - Errors are represented by a **single error object**
 - HTTP status code communicates severity
-- `details` and `meta` are optional
+- `context` and `meta` are optional
 
 ---
 
@@ -92,16 +92,16 @@ return ok()
 
 ### List response
 ```python
-from jsonframe import list_ok
+from jsonframe import ok
 
-return list_ok([{"id": 1}, {"id": 2}])
+return ok([{"id": 1}, {"id": 2}])
 ```
 
 ### Paginated list
 ```python
-from jsonframe import paged
+from jsonframe import ok_paged
 
-return paged(
+return ok_paged(
     items=[{"id": 1}, {"id": 2}],
     total=120,
     limit=20,
@@ -127,12 +127,12 @@ Result:
 
 ### Error response
 ```python
-from jsonframe import fail
+from jsonframe import error
 
-return fail(
+return error(
     code="validation_error",
     message="Invalid input",
-    details={"field": "email"},
+    context={"field": "email"},
 )
 ```
 
@@ -142,10 +142,10 @@ return fail(
 
 ### Returning framed JSON with status code
 ```python
-from jsonframe.fastapi import json
+from jsonframe.fastapi import json_frame
 from jsonframe import ok
 
-return json(ok({"id": 1}), status_code=200)
+return json_frame(ok({"id": 1}), status_code=200)
 ```
 
 ### Raising framed HTTP errors

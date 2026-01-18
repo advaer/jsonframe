@@ -1,6 +1,6 @@
 [project]
 name = "jsonframe"
-version = "0.0.2"
+version = "0.1.0"
 description = "A small, typed JSON frame (envelope) for API responses and messages."
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -36,3 +36,8 @@ Issues = "https://github.com/advaer/jsonframe/issues"
 [build-system]
 requires = ["uv_build>=0.9.18,<0.10.0"]
 build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.2",
+]

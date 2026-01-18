@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, TypeVar
 
-from .models import ErrorFrame, ErrorInfo, Frame, PageMeta
+from .models import ErrorInfo, Frame, PageMeta
 
 T = TypeVar("T")
 
@@ -10,12 +10,7 @@ T = TypeVar("T")
 def ok(data: T | None = None, *, meta: dict[str, Any] | None = None) -> Frame[T]:
     return Frame[T](data=data, meta=meta)
 
-
-def list_ok(items: list[T], *, meta: dict[str, Any] | None = None) -> Frame[list[T]]:
-    return Frame[list[T]](data=items, meta=meta)
-
-
-def paged(
+def ok_paged(
     items: list[T],
     *,
     total: int,
@@ -24,19 +19,21 @@ def paged(
     meta: dict[str, Any] | None = None,
 ) -> Frame[list[T]]:
     page = PageMeta(total=total, limit=limit, offset=offset).model_dump()
-    merged_meta: dict[str, Any] = {**(meta or {}), "page": page}
-    return Frame[list[T]](data=items, meta=merged_meta)
+    merged_meta = {**(meta or {}), "page": page}
+    return ok(items, meta=merged_meta)
 
-
-def fail(
+def error(
     *,
     code: str,
     message: str,
-    details: Any | None = None,
+    context: Any | None = None,
     meta: dict[str, Any] | None = None,
     trace_id: str | None = None,
-) -> ErrorFrame:
-    return ErrorFrame(
-        error=ErrorInfo(code=code, message=message, details=details, trace_id=trace_id),
+) -> ErrorInfo:
+    return ErrorInfo(
+        code=code,
+        message=message,
+        context=context,
+        trace_id=trace_id,
         meta=meta,
     )
