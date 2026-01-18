@@ -29,7 +29,28 @@ A tiny, opinionated helper for **consistent JSON API response frames**.
 - `data` contains the business payload (object, list, scalar, or `null`)
 - `meta` contains non-business metadata (optional, always an object)
 
-#### Example payload and framed result
+### Error
+```json
+{
+  "detail": {
+    "code": "not_found",
+    "message": "User not found",
+    "context": { ... },
+    "trace_id": "..."
+  },
+  "meta": { ... }
+}
+```
+
+- Errors are represented by a **single error object**
+- HTTP status code communicates severity
+- `context`, `trace_id` and `meta` are optional
+
+---
+
+## Examples
+
+#### Example of success payload and framed result
 Given this business object:
 ```json
 {
@@ -51,6 +72,7 @@ user = {
   "role": "admin"
 }
 meta={"request_id": "req_123"}
+
 return ok(data=user, meta=meta)
 ```
 
@@ -68,23 +90,6 @@ Result:
   }
 }
 ```
-
-### Error
-```json
-{
-  "detail": {
-    "code": "not_found",
-    "message": "User not found",
-    "context": { ... },
-    "trace_id": "..."
-  },
-  "meta": { ... }
-}
-```
-
-- Errors are represented by a **single error object**
-- HTTP status code communicates severity
-- `context` and `meta` are optional
 
 #### Example error response
 ```python
@@ -212,7 +217,10 @@ return error(
 from jsonframe.fastapi import json_frame
 from jsonframe import ok
 
-return json_frame(ok({"id": 1}), status_code=200)
+return json_frame(
+    ok({"id": 1}), 
+    status_code=200
+)
 ```
 
 ### Raising framed HTTP errors
