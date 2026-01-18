@@ -21,5 +21,6 @@ def test_paged_meta_shape():
 
 def test_fail_payload():
     frame = error(code="not_found", message="missing")
-    assert frame.code == "not_found"
-    assert frame.message == "missing"
+    assert frame.error.code == "not_found"
+    assert frame.error.message == "missing"
+    assert frame.meta is None

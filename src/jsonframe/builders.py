@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, TypeVar
 
-from .models import ErrorInfo, Frame, PageMeta
+from .models import ErrorFrame,ErrorInfo, Frame, PageMeta
 
 T = TypeVar("T")
 
@@ -30,10 +30,7 @@ def error(
     meta: dict[str, Any] | None = None,
     trace_id: str | None = None,
 ) -> ErrorInfo:
-    return ErrorInfo(
-        code=code,
-        message=message,
-        context=context,
-        trace_id=trace_id,
+    return ErrorFrame(
+        error=ErrorInfo(code=code, message=message, context=context, trace_id=trace_id),
         meta=meta,
     )

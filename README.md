@@ -29,6 +29,46 @@ A tiny, opinionated helper for **consistent JSON API response frames**.
 - `data` contains the business payload (object, list, scalar, or `null`)
 - `meta` contains non-business metadata (optional, always an object)
 
+#### Example payload and framed result
+Given this business object:
+```json
+{
+  "id": 42,
+  "name": "Ada Lovelace",
+  "email": "ada@example.com",
+  "role": "admin"
+}
+```
+
+Using:
+```python
+from jsonframe import ok
+
+user = {
+  "id": 42, 
+  "name": "Ada Lovelace", 
+  "email": "ada@example.com", 
+  "role": "admin"
+}
+meta={"request_id": "req_123"}
+return ok(data=user, meta=meta)
+```
+
+Result:
+```json
+{
+  "data": {
+    "id": 42,
+    "name": "Ada Lovelace",
+    "email": "ada@example.com",
+    "role": "admin"
+  },
+  "meta": {
+    "request_id": "req_123"
+  }
+}
+```
+
 ### Error
 ```json
 {
@@ -45,6 +85,33 @@ A tiny, opinionated helper for **consistent JSON API response frames**.
 - Errors are represented by a **single error object**
 - HTTP status code communicates severity
 - `context` and `meta` are optional
+
+#### Example error response
+```python
+from jsonframe import error
+
+return error(
+    code="not_found",
+    message="User not found",
+    context={"user_id": 42},
+    meta={"request_id": "req_123"},
+)
+```
+
+```json
+{
+  "error": {
+    "code": "not_found",
+    "message": "User not found",
+    "context": {
+      "user_id": 42
+    }
+  },
+  "meta": {
+    "request_id": "req_123"
+  }
+}
+```
 
 ---
 

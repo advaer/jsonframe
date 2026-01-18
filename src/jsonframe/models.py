@@ -10,8 +10,7 @@ class ErrorInfo(BaseModel):
     code: str = Field(..., description="Stable machine-readable error code")
     message: str = Field(..., description="Human-readable summary")
     context: Any | None = Field(default=None, description="Optional structured error details")
-    trace_id: str | None = Field(default=None, description="Correlation/trace id if available")
-    meta: dict[str, Any] | None = Field(default=None, description="Optional non-business metadata")
+    trace_id: str | None = Field(default=None, description="Correlation/trace id if available")   
 
 
 class Frame(BaseModel, Generic[T]):
@@ -21,6 +20,14 @@ class Frame(BaseModel, Generic[T]):
     - meta: non-business metadata (always an object if present)
     """
     data: T | None = Field(default=None)
+    meta: dict[str, Any] | None = Field(default=None)
+
+
+class ErrorFrame(BaseModel):
+    """
+    Error frame (single error object by design).
+    """
+    error: ErrorInfo
     meta: dict[str, Any] | None = Field(default=None)
 
 
