@@ -7,10 +7,10 @@ from .models import ErrorDetail, ErrorFrame, ErrorInfo, Frame, PageMeta
 T = TypeVar("T")
 
 
-def ok(data: T | None = None, *, meta: dict[str, Any] | None = None) -> Frame[T]:
+def build_ok(data: T | None = None, *, meta: dict[str, Any] | None = None) -> Frame[T]:
     return Frame[T](data=data, meta=meta or None)
 
-def ok_paged(
+def build_ok_paged(
     data: list[T],
     *,
     total: int,
@@ -20,9 +20,9 @@ def ok_paged(
 ) -> Frame[list[T]]:
     page = PageMeta(total=total, limit=limit, offset=offset).model_dump(exclude_none=True)
     merged_meta = {**(meta or {}), "page": page}
-    return ok(data, meta=merged_meta)
+    return build_ok(data, meta=merged_meta)
 
-def error(
+def build_error(
     *,
     message: str,
     code: str | None = None,
