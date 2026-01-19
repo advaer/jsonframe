@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Generic, Optional, TypeVar
+from typing import Any, Generic, TypeVar
 from pydantic import BaseModel, Field
 
 T = TypeVar("T")
@@ -10,7 +10,6 @@ class ErrorInfo(BaseModel):
     code: str = Field(..., description="Stable machine-readable error code")
     message: str = Field(..., description="Human-readable summary")
     context: Any | None = Field(default=None, description="Optional structured error details")
-    trace_id: str | None = Field(default=None, description="Correlation/trace id if available")   
 
 
 class Frame(BaseModel, Generic[T]):
@@ -23,12 +22,19 @@ class Frame(BaseModel, Generic[T]):
     meta: dict[str, Any] | None = Field(default=None)
 
 
-class ErrorFrame(BaseModel):
+class ErrorDetail(BaseModel):
     """
-    Error frame (single error object by design).
+    Structured error payload for `detail`.
     """
     error: ErrorInfo
     meta: dict[str, Any] | None = Field(default=None)
+
+
+class ErrorFrame(BaseModel):
+    """
+    Error frame (string or structured detail).
+    """
+    detail: str | ErrorDetail
 
 
 class PageMeta(BaseModel):

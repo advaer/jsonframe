@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Any, TYPE_CHECKING
 
 from .builders import error as build_error
-from .models import ErrorInfo, Frame
+from .models import ErrorDetail, Frame
 
 if TYPE_CHECKING:
     # Optional dependency: allows type checking without requiring FastAPI installed at runtime
@@ -35,27 +35,28 @@ def json_frame(
 def http_error(
     status_code: int,
     *,
-    code: str,
     message: str,
+    code: str | None = None,
     context: Any | None = None,
     meta: dict[str, Any] | None = None,
-    trace_id: str | None = None,
 ) -> "HTTPException":
     """
-    Raises a FastAPI HTTPException where `detail` is a flat error object.
+    Raises a FastAPI HTTPException where `detail` is either a string or structured error payload.
 
-    FastAPI will return: {"detail": <your ErrorInfo dict>}.
+    FastAPI will return: {"detail": <string or error payload>}.
     """
     from fastapi import HTTPException  # local import: optional dependency
 
-    payload: ErrorInfo = build_error(
+    payload = build_error(
         code=code,
         message=message,
-        details=context,
+        context=context,
         meta=meta,
-        trace_id=trace_id,
     )
+    detail = payload.detail
+    if isinstance(detail, ErrorDetail):
+        detail = detail.model_dump(exclude_none=True)
     return HTTPException(
         status_code=status_code,
-        detail=payload.model_dump(exclude_none=True),
+        detail=detail,
     )

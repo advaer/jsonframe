@@ -32,18 +32,27 @@ A tiny, opinionated helper for **consistent JSON API response frames**.
 ### Error
 ```json
 {
-  "error": {
-    "code": "validation_error",
-    "message": "Invalid request payload"
-  },
-  "meta": { ... }
+  "detail": "Invalid request payload"
+}
+```
+
+Or structured:
+```json
+{
+  "detail": {
+    "error": {
+      "code": "validation_error",
+      "message": "Invalid request payload"
+    },
+    "meta": { ... }
+  }
 }
 ```
 
 - Errors are represented by a **single error object** (no arrays, no partial failures)
 - HTTP status code communicates severity
-- `meta` is optional
-- Additional fields may be included for diagnostics (e.g. `context`, `trace_id`)
+- `meta` is optional and always an object when present
+- Additional fields may be included for diagnostics (e.g. `context`)
 
 ---
 
@@ -80,7 +89,20 @@ Result:
 }
 ```
 
-#### Example error response
+#### Example error response (string)
+```python
+from jsonframe import error
+
+return error(message="User not found")
+```
+
+```json
+{
+  "detail": "User not found"
+}
+```
+
+#### Example error response (structured)
 ```python
 from jsonframe import error
 
@@ -88,23 +110,23 @@ return error(
     code="not_found",
     message="User not found",
     context={"user_id": 42},
-    trace_id="9f3c2a8e7d",
     meta={"request_id": "req_123"},
 )
 ```
 
 ```json
 {
-  "error": {
-    "code": "not_found",
-    "message": "User not found",
-    "context": {
-      "user_id": 42
+  "detail": {
+    "error": {
+      "code": "not_found",
+      "message": "User not found",
+      "context": {
+        "user_id": 42
+      }
     },
-    "trace_id": "9f3c2a8e7d"
-  },
-  "meta": {
-    "request_id": "req_123"
+    "meta": {
+      "request_id": "req_123"
+    }
   }
 }
 ```

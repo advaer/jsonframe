@@ -19,8 +19,26 @@ def test_paged_meta_shape():
     assert frame.meta["page"]["offset"] == 0
 
 
-def test_fail_payload():
+def test_fail_payload_string():
+    frame = error(message="missing")
+    assert frame.detail == "missing"
+
+
+def test_fail_payload_object():
+    frame = error(
+        code="not_found",
+        message="missing",
+        context={"user_id": 1},
+        meta={"request_id": "req_123"},
+    )
+    detail = frame.detail
+    assert detail.error.code == "not_found"
+    assert detail.error.message == "missing"
+    assert detail.error.context == {"user_id": 1}
+    assert detail.meta == {"request_id": "req_123"}
+
+
+def test_error_meta_omitted_when_none():
     frame = error(code="not_found", message="missing")
-    assert frame.error.code == "not_found"
-    assert frame.error.message == "missing"
-    assert frame.meta is None
+    detail = frame.detail
+    assert detail.meta is None
