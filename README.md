@@ -226,15 +226,29 @@ return error(
 
 ## FastAPI helpers (optional)
 
-### Returning framed JSON with status code
-`ok()` returns a plain JSON-serializable `dict`; `json_frame()` converts it into a FastAPI `Response`.
+Typical imports:
 ```python
-from jsonframe.fastapi import json_frame
-from jsonframe import ok
+from jsonframe.fastapi import ok, http_error
+# or
+from jsonframe.fastapi import ok, ok_paged, http_error
+```
 
-return json_frame(
-    ok({"id": 1}), 
-    status_code=200
+### Returning framed JSON
+`ok()` and `ok_paged()` return plain JSON-serializable `dict` values that you can return directly.
+```python
+from jsonframe.fastapi import ok, ok_paged
+
+return ok(data={"id": 1})
+```
+
+```python
+from jsonframe.fastapi import ok_paged
+
+return ok_paged(
+    data=[{"id": 1}, {"id": 2}],
+    total=120,
+    limit=20,
+    offset=40,
 )
 ```
 

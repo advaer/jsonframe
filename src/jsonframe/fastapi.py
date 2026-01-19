@@ -2,34 +2,16 @@ from __future__ import annotations
 
 from typing import Any, TYPE_CHECKING
 
+# Re-export helpers for FastAPI usage
+from .helpers import ok, ok_paged
 from .builders import build_error
-from .models import ErrorDetail, Frame
+from .models import ErrorDetail
 
 if TYPE_CHECKING:
     # Optional dependency: allows type checking without requiring FastAPI installed at runtime
     from fastapi import HTTPException
-    from fastapi.responses import JSONResponse
 
-
-
-def json_frame(
-    frame: Frame[Any],
-    *,
-    status_code: int = 200,
-    headers: dict[str, str] | None = None,
-) -> "JSONResponse":
-    """
-    Returns a FastAPI JSONResponse with consistent framing and status_code control.
-
-    Note: FastAPI is imported lazily so jsonframe can be used without FastAPI installed.
-    """
-    from fastapi.responses import JSONResponse  # local import: optional dependency
-
-    return JSONResponse(
-        status_code=status_code,
-        content=frame.model_dump(exclude_none=True),
-        headers=headers,
-    )
+__all__ = ["ok", "ok_paged", "http_error"]
 
 
 def http_error(

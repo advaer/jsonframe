@@ -14,3 +14,28 @@ def test_http_error_detail_shape():
             "message": "Missing",
         },
     }
+
+
+def test_http_error_detail_string():
+    exc = http_error(400, message="Bad request")
+    assert isinstance(exc, fastapi.HTTPException)
+    assert exc.detail == "Bad request"
+
+
+def test_http_error_detail_with_context_and_meta():
+    exc = http_error(
+        422,
+        code="invalid",
+        message="Validation failed",
+        context={"field": "name"},
+        meta={"request_id": "req_123"},
+    )
+    assert isinstance(exc, fastapi.HTTPException)
+    assert exc.detail == {
+        "error": {
+            "code": "invalid",
+            "message": "Validation failed",
+            "context": {"field": "name"},
+        },
+        "meta": {"request_id": "req_123"},
+    }
