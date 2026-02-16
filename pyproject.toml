@@ -1,6 +1,6 @@
 [project]
 name = "jsonframe"
-version = "0.1.2"
+version = "0.2.0"
 description = "A small, typed JSON frame (envelope) for API responses and messages."
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -24,9 +24,6 @@ classifiers = [
 dependencies = [
     "pydantic>=2.12.5",
 ]
-
-[project.optional-dependencies]
-fastapi = ["fastapi>=0.100", "starlette>=0.27"]
 
 [project.urls]
 Homepage = "https://github.com/advaer/jsonframe"
