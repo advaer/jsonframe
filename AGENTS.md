@@ -2,21 +2,23 @@
 
 ## Project Overview
 
-jsonframe is a lightweight Python library (Python 3.10+) for standardizing JSON API response envelopes. It provides three classes — `SuccessFrame`, `ErrorDetail`, `ErrorFrame` — each with a `.to_dict()` method. Built on Pydantic v2, no framework dependencies.
+jsonframe is a lightweight Python library (Python 3.10+) for standardizing JSON API response envelopes. It provides `ok()` and `error()` helper functions for quick use, plus three classes — `SuccessFrame`, `ErrorDetail`, `ErrorFrame` — each with a `.to_dict()` method. Built on Pydantic v2, no framework dependencies.
 
 ## Architecture
 
 ```
 src/jsonframe/
-├── __init__.py    # public exports: SuccessFrame, ErrorDetail, ErrorFrame
+├── __init__.py    # public exports: SuccessFrame, ErrorDetail, ErrorFrame, ok, error
 ├── frames.py      # public API — three classes with .to_dict()
-├── models.py      # internal Pydantic models (_Frame, _PageMeta) — not exported
+├── helpers.py     # ok() and error() convenience functions
+├── models.py      # internal Pydantic models (_SuccessModel, _ErrorDetailModel) — not exported
 └── py.typed       # PEP 561 marker
 tests/
-└── test_frames.py # pytest unit tests
+├── test_frames.py # pytest unit tests for classes
+└── test_helpers.py # pytest unit tests for ok()/error()
 ```
 
-- Public classes are plain Python, not Pydantic models. They use composition with internal `_Frame` model (underscore-prefixed = private).
+- Public classes are plain Python, not Pydantic models. They use composition with internal `_SuccessModel` and `_ErrorDetailModel` models (underscore-prefixed = private).
 - `SuccessFrame[T]` is generic. Output always includes `"data"` key; `"meta"` only when provided.
 - `ErrorDetail.to_dict()` returns a plain string when only `message` is set, or a structured dict when `code`/`meta` are provided.
 - `ErrorFrame` wraps `ErrorDetail` under a `"detail"` key.
@@ -42,7 +44,7 @@ uv run pytest tests/test_frames.py::test_name   # run a single test
 
 - Python 3.10+ with explicit type hints (e.g., `dict[str, Any]`, `str | None`).
 - 4-space indentation, double quotes, and straightforward class-based APIs.
-- Internal helpers are underscore-prefixed (e.g., `_Frame`); public classes are `PascalCase`.
+- Internal helpers are underscore-prefixed (e.g., `_SuccessModel`); public classes are `PascalCase`.
 - Keep changes consistent with existing style.
 
 ## Testing Guidelines

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Generic, TypeVar
 
-from .models import _Frame
+from .models import _ErrorDetailModel, _SuccessModel
 
 T = TypeVar("T")
 
@@ -15,17 +15,15 @@ class ErrorDetail:
         code: str | None = None,
         meta: dict[str, Any] | None = None,
     ) -> None:
-        self._message = message
-        self._code = code
-        self._meta = meta
+        self._model = _ErrorDetailModel(message=message, code=code, meta=meta)
 
     def to_dict(self) -> str | dict[str, Any]:
-        if self._code is None and self._meta is None:
-            return self._message
-        result: dict[str, Any] = {"code": self._code, "message": self._message}
-        if self._meta is not None:
-            result["meta"] = self._meta
-        return result
+        if self._model.code is None and self._model.meta is None:
+            return self._model.message
+        payload = self._model.model_dump()
+        if self._model.meta is None:
+            payload.pop("meta")
+        return payload
 
 
 class ErrorFrame:
@@ -49,7 +47,7 @@ class SuccessFrame(Generic[T]):
         *,
         meta: dict[str, Any] | None = None,
     ) -> None:
-        self._frame = _Frame(data=data, meta=meta or None)
+        self._frame = _SuccessModel(data=data, meta=meta or None)
 
     def to_dict(self) -> dict[str, Any]:
         payload = self._frame.model_dump(exclude_none=True)
