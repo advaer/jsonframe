@@ -1,6 +1,6 @@
 # jsonframe
 
-A tiny, opinionated helper for **consistent JSON API response frames**.
+A tiny, opinionated library for **consistent JSON API response frames**.
 
 `jsonframe` standardizes how APIs return successful responses, collections, pagination metadata, and errors — without dragging in heavy specs or forcing a framework.
 
@@ -40,10 +40,8 @@ Or structured:
 ```json
 {
   "detail": {
-    "error": {
-      "code": "validation_error",
-      "message": "Invalid request payload"
-    },
+    "code": "validation_error",
+    "message": "Invalid request payload",
     "meta": { ... }
   }
 }
@@ -51,8 +49,8 @@ Or structured:
 
 - Errors are represented by a **single error object** (no arrays, no partial failures)
 - HTTP status code communicates severity
+- `code` is always present in structured form (value can be `null`)
 - `meta` is optional and always an object when present
-- Additional fields may be included for diagnostics (e.g. `context`)
 
 ---
 
@@ -64,14 +62,13 @@ Given the user object and request_id:
 from jsonframe import ok
 
 user = {
-  "id": 42, 
-  "name": "Ada Lovelace", 
-  "email": "ada@example.com", 
+  "id": 42,
+  "name": "Ada Lovelace",
+  "email": "ada@example.com",
   "role": "admin"
 }
-meta={"request_id": "req_123"}
 
-return ok(data=user, meta=meta)
+result = ok(data=user, meta={"request_id": "req_123"})
 ```
 
 Result:
@@ -93,7 +90,7 @@ Result:
 ```python
 from jsonframe import error
 
-return error(message="User not found")
+result = error(message="User not found")
 ```
 
 ```json
@@ -106,10 +103,9 @@ return error(message="User not found")
 ```python
 from jsonframe import error
 
-return error(
+result = error(
     code="not_found",
     message="User not found",
-    context={"user_id": 42},
     meta={"request_id": "req_123"},
 )
 ```
@@ -117,13 +113,8 @@ return error(
 ```json
 {
   "detail": {
-    "error": {
-      "code": "not_found",
-      "message": "User not found",
-      "context": {
-        "user_id": 42
-      }
-    },
+    "code": "not_found",
+    "message": "User not found",
     "meta": {
       "request_id": "req_123"
     }
@@ -135,28 +126,12 @@ return error(
 
 ## Installation
 
-### Core package
 ```bash
 uv add jsonframe
 ```
 
 Core dependency:
 - `pydantic >= 2.0` (used for lightweight validation and serialization)
-
----
-
-### Optional FastAPI integration
-
-FastAPI helpers are **optional** and not installed by default.
-FastAPI wraps error payloads under `detail`; `http_error()` applies this automatically without changing the core error shape.
-
-```bash
-uv add "jsonframe[fastapi]"
-```
-
-This installs:
-- `fastapi`
-- `starlette`
 
 ---
 
@@ -185,13 +160,11 @@ return ok(data=[{"id": 1}, {"id": 2}])
 
 ### Paginated list
 ```python
-from jsonframe import ok_paged
+from jsonframe import ok
 
-return ok_paged(
+return ok(
     data=[{"id": 1}, {"id": 2}],
-    total=120,
-    limit=20,
-    offset=40,
+    meta={"page": {"total": 120, "limit": 20, "offset": 40}},
 )
 ```
 
@@ -216,52 +189,56 @@ Result:
 from jsonframe import error
 
 return error(
-    code="validation_error",
     message="Invalid input",
-    context={"field": "email"},
+    code="validation_error",
+    meta={"field": "email"},
 )
 ```
 
 ---
 
-## FastAPI helpers (optional)
-
-Typical imports:
+### Using ErrorDetail with FastAPI
+`ErrorDetail` produces the right shape for FastAPI's `HTTPException.detail`:
 ```python
-from jsonframe.fastapi import ok, http_error
-# or
-from jsonframe.fastapi import ok, ok_paged, http_error
-```
+from fastapi import HTTPException
+from jsonframe import ErrorDetail
 
-### Returning framed JSON
-`ok()` and `ok_paged()` return plain JSON-serializable `dict` values that you can return directly.
-```python
-from jsonframe.fastapi import ok, ok_paged
-
-return ok(data={"id": 1})
-```
-
-```python
-from jsonframe.fastapi import ok_paged
-
-return ok_paged(
-    data=[{"id": 1}, {"id": 2}],
-    total=120,
-    limit=20,
-    offset=40,
+raise HTTPException(
+    status_code=404,
+    detail=ErrorDetail(
+        message="User not found",
+        code="not_found",
+        meta={"user_id": 42},
+    ).to_dict(),
 )
 ```
 
-### Raising framed HTTP errors
-```python
-from jsonframe.fastapi import http_error
+FastAPI will return:
+```json
+{
+  "detail": {
+    "code": "not_found",
+    "message": "User not found",
+    "meta": {
+      "user_id": 42
+    }
+  }
+}
+```
 
-raise http_error(
-    404,
-    code="not_found",
-    message="User not found",
-    context={"user_id": 42},
+For simple string errors:
+```python
+raise HTTPException(
+    status_code=400,
+    detail=ErrorDetail(message="Bad request").to_dict(),
 )
+```
+
+Returns:
+```json
+{
+  "detail": "Bad request"
+}
 ```
 
 ---
@@ -289,8 +266,8 @@ raise http_error(
 
 `jsonframe` is intentionally small.
 
-It standardizes **structure**, not **business logic**.  
-If you can’t explain your API responses by pointing to this README, the library is doing too much.
+It standardizes **structure**, not **business logic**.
+If you can't explain your API responses by pointing to this README, the library is doing too much.
 
 ---
 

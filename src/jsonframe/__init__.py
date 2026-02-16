@@ -1,13 +1,6 @@
-from .models import ErrorInfo, Frame, PageMeta
-from .helpers import error, ok, ok_paged
+from .frames import SuccessFrame, ErrorDetail, ErrorFrame
+from .helpers import ok, error
 
-__all__ = [
-    "Frame",
-    "ErrorInfo",
-    "PageMeta",
-    "ok",
-    "ok_paged",
-    "error",
-]
+__all__ = ["SuccessFrame", "ErrorDetail", "ErrorFrame", "ok", "error"]
 
-__version__ = "0.1.2"
+__version__ = "0.3.0"

@@ -1,53 +1,33 @@
-from jsonframe.helpers import error, ok, ok_paged
+from jsonframe import ok, error, SuccessFrame, ErrorFrame
 
 
-def test_ok_includes_data_key_when_none():
-    payload = ok()
-    assert payload == {"data": None}
+# --- ok() ---
+
+def test_ok_default():
+    assert ok() == SuccessFrame().to_dict()
 
 
-def test_ok_preserves_meta_and_sets_data():
-    payload = ok(meta={"request_id": "req_123"})
-    assert payload == {"data": None, "meta": {"request_id": "req_123"}}
+def test_ok_with_data():
+    assert ok(data={"id": 1}) == SuccessFrame(data={"id": 1}).to_dict()
 
 
-def test_ok_paged_merges_meta_with_page():
-    payload = ok_paged(
-        data=[{"id": 1}],
-        total=10,
-        limit=5,
-        offset=0,
-        meta={"request_id": "req_123"},
-    )
-    assert payload["data"] == [{"id": 1}]
-    assert payload["meta"]["request_id"] == "req_123"
-    assert payload["meta"]["page"] == {"total": 10, "limit": 5, "offset": 0}
+def test_ok_with_data_and_meta():
+    assert ok(data=[1, 2], meta={"total": 2}) == SuccessFrame(data=[1, 2], meta={"total": 2}).to_dict()
 
 
-def test_error_simple_detail():
-    payload = error(message="missing")
-    assert payload == {"detail": "missing"}
+# --- error() ---
+
+def test_error_default():
+    assert error() == ErrorFrame().to_dict()
 
 
-def test_error_structured_detail_omits_empty_fields():
-    payload = error(message="missing", code="not_found")
-    assert payload == {"detail": {"error": {"code": "not_found", "message": "missing"}}}
+def test_error_simple_message():
+    assert error(message="not found") == ErrorFrame(message="not found").to_dict()
 
 
-def test_error_structured_detail_with_context_and_meta():
-    payload = error(
-        message="missing",
-        code="not_found",
-        context={"user_id": 1},
-        meta={"request_id": "req_123"},
-    )
-    assert payload == {
-        "detail": {
-            "error": {
-                "code": "not_found",
-                "message": "missing",
-                "context": {"user_id": 1},
-            },
-            "meta": {"request_id": "req_123"},
-        }
-    }
+def test_error_with_code():
+    assert error(message="fail", code="E01") == ErrorFrame(message="fail", code="E01").to_dict()
+
+
+def test_error_with_code_and_meta():
+    assert error(message="fail", code="E01", meta={"field": "x"}) == ErrorFrame(message="fail", code="E01", meta={"field": "x"}).to_dict()
