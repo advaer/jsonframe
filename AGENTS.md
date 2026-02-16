@@ -2,18 +2,20 @@
 
 ## Project Overview
 
-jsonframe is a lightweight Python library (Python 3.10+) for standardizing JSON API response envelopes. It provides three classes — `SuccessFrame`, `ErrorDetail`, `ErrorFrame` — each with a `.to_dict()` method. Built on Pydantic v2, no framework dependencies.
+jsonframe is a lightweight Python library (Python 3.10+) for standardizing JSON API response envelopes. It provides `ok()` and `error()` helper functions for quick use, plus three classes — `SuccessFrame`, `ErrorDetail`, `ErrorFrame` — each with a `.to_dict()` method. Built on Pydantic v2, no framework dependencies.
 
 ## Architecture
 
 ```
 src/jsonframe/
-├── __init__.py    # public exports: SuccessFrame, ErrorDetail, ErrorFrame
+├── __init__.py    # public exports: SuccessFrame, ErrorDetail, ErrorFrame, ok, error
 ├── frames.py      # public API — three classes with .to_dict()
+├── helpers.py     # ok() and error() convenience functions
 ├── models.py      # internal Pydantic models (_SuccessModel, _ErrorDetailModel) — not exported
 └── py.typed       # PEP 561 marker
 tests/
-└── test_frames.py # pytest unit tests
+├── test_frames.py # pytest unit tests for classes
+└── test_helpers.py # pytest unit tests for ok()/error()
 ```
 
 - Public classes are plain Python, not Pydantic models. They use composition with internal `_SuccessModel` and `_ErrorDetailModel` models (underscore-prefixed = private).
