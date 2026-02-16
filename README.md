@@ -59,7 +59,7 @@ Or structured:
 #### Example of success payload and framed result
 Given the user object and request_id:
 ```python
-from jsonframe import SuccessFrame
+from jsonframe import ok
 
 user = {
   "id": 42,
@@ -68,7 +68,7 @@ user = {
   "role": "admin"
 }
 
-result = SuccessFrame(data=user, meta={"request_id": "req_123"}).to_dict()
+result = ok(data=user, meta={"request_id": "req_123"})
 ```
 
 Result:
@@ -88,9 +88,9 @@ Result:
 
 #### Example error response (string)
 ```python
-from jsonframe import ErrorFrame
+from jsonframe import error
 
-result = ErrorFrame(message="User not found").to_dict()
+result = error(message="User not found")
 ```
 
 ```json
@@ -101,13 +101,13 @@ result = ErrorFrame(message="User not found").to_dict()
 
 #### Example error response (structured)
 ```python
-from jsonframe import ErrorFrame
+from jsonframe import error
 
-result = ErrorFrame(
+result = error(
     code="not_found",
     message="User not found",
     meta={"request_id": "req_123"},
-).to_dict()
+)
 ```
 
 ```json
@@ -139,33 +139,33 @@ Core dependency:
 
 ### Success response
 ```python
-from jsonframe import SuccessFrame
+from jsonframe import ok
 
-return SuccessFrame(data={"id": 1, "name": "Ada"}).to_dict()
+return ok(data={"id": 1, "name": "Ada"})
 ```
 
 ### Empty success
 ```python
-from jsonframe import SuccessFrame
+from jsonframe import ok
 
-return SuccessFrame().to_dict()
+return ok()
 ```
 
 ### List response
 ```python
-from jsonframe import SuccessFrame
+from jsonframe import ok
 
-return SuccessFrame(data=[{"id": 1}, {"id": 2}]).to_dict()
+return ok(data=[{"id": 1}, {"id": 2}])
 ```
 
 ### Paginated list
 ```python
-from jsonframe import SuccessFrame
+from jsonframe import ok
 
-return SuccessFrame(
+return ok(
     data=[{"id": 1}, {"id": 2}],
     meta={"page": {"total": 120, "limit": 20, "offset": 40}},
-).to_dict()
+)
 ```
 
 Result:
@@ -186,13 +186,13 @@ Result:
 
 ### Error response
 ```python
-from jsonframe import ErrorFrame
+from jsonframe import error
 
-return ErrorFrame(
+return error(
     message="Invalid input",
     code="validation_error",
     meta={"field": "email"},
-).to_dict()
+)
 ```
 
 ---
