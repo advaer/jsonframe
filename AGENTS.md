@@ -1,42 +1,58 @@
 # Repository Guidelines
 
-## Project Structure & Module Organization
-- `src/jsonframe/` holds the library code (`builders.py`, `models.py`, and optional `fastapi.py`).
-- `tests/` contains pytest tests (currently `tests/test_builders.py`).
-- `dist/` is for build artifacts and should not be edited by hand.
-- `pyproject.toml` defines dependencies, build backend, and project metadata.
+## Project Overview
+
+jsonframe is a lightweight Python library (Python 3.10+) for standardizing JSON API response envelopes. It provides three classes — `SuccessFrame`, `ErrorDetail`, `ErrorFrame` — each with a `.to_dict()` method. Built on Pydantic v2, no framework dependencies.
+
+## Architecture
+
+```
+src/jsonframe/
+├── __init__.py    # public exports: SuccessFrame, ErrorDetail, ErrorFrame
+├── frames.py      # public API — three classes with .to_dict()
+├── models.py      # internal Pydantic models (_Frame, _PageMeta) — not exported
+└── py.typed       # PEP 561 marker
+tests/
+└── test_frames.py # pytest unit tests
+```
+
+- Public classes are plain Python, not Pydantic models. They use composition with internal `_Frame` model (underscore-prefixed = private).
+- `SuccessFrame[T]` is generic. Output always includes `"data"` key; `"meta"` only when provided.
+- `ErrorDetail.to_dict()` returns a plain string when only `message` is set, or a structured dict when `code`/`meta` are provided.
+- `ErrorFrame` wraps `ErrorDetail` under a `"detail"` key.
+
+### Wire Format
+
+Success: `{"data": ..., "meta": {...}}` — meta is optional
+Error (simple): `{"detail": "message"}`
+Error (structured): `{"detail": {"code": "...", "message": "...", "meta": {...}}}`
 
 ## Build, Test, and Development Commands
-- `uv sync --dev` installs locked dependencies, including dev tools like pytest.
-- `uv run pytest` runs the full test suite.
-- `uv build` builds the package into `dist/` for publishing.
+
+```bash
+uv run pytest                                   # run all tests
+uv run pytest tests/test_frames.py::test_name   # run a single test
+```
+
+- Package builds use the **uv** `uv_build` backend (see `pyproject.toml`).
+- Version is maintained in both `pyproject.toml` and `__init__.py`.
+- No linter or formatter is configured.
 
 ## Coding Style & Naming Conventions
-- Python code uses 4-space indentation and standard PEP 8 conventions.
-- Use snake_case for functions/variables and `Test*`/`test_*` naming for tests.
-- Public API functions are simple and explicit (e.g., `ok`, `ok_paged`, `error`).
-- No formatter or linter is configured; keep changes consistent with existing code style.
+
+- Python 3.10+ with explicit type hints (e.g., `dict[str, Any]`, `str | None`).
+- 4-space indentation, double quotes, and straightforward class-based APIs.
+- Internal helpers are underscore-prefixed (e.g., `_Frame`); public classes are `PascalCase`.
+- Keep changes consistent with existing style.
 
 ## Testing Guidelines
-- Framework: pytest.
-- Test files follow `tests/test_*.py` naming; test functions start with `test_`.
-- Add coverage for new behavior in `src/jsonframe/` and keep tests focused on JSON frame shapes and metadata.
+
+- Tests are written with pytest.
+- Name test files `test_*.py` and use `test_*` functions.
+- Focus on contract-level behavior (success frames, error frames, metadata).
 
 ## Commit & Pull Request Guidelines
-- Commit messages follow Conventional Commits (e.g., `feat: add paged responses`).
-- PRs should include a clear description, any relevant issue links, and test results.
-- If you change public APIs, update `README.md` with usage examples.
 
-## Architecture Overview
-- The core API surface is in `src/jsonframe/__init__.py`, which re-exports key helpers.
-- Response shapes are defined in `src/jsonframe/models.py`; builder helpers live in `src/jsonframe/builders.py`.
-- Optional FastAPI integration is isolated in `src/jsonframe/fastapi.py` to avoid hard dependencies.
-
-## Optional Dependencies
-- FastAPI support is optional; install via `uv add "jsonframe[fastapi]"` when needed.
-- Keep optional integrations isolated in `src/jsonframe/fastapi.py`.
-
-## Release Notes
-- Document user-facing changes in `README.md` when APIs or behavior change.
-- Keep version bumps in `pyproject.toml` aligned with the change scope (patch/minor/major).
-- Tag releases in Git and ensure `uv build` artifacts in `dist/` are generated only for publishing.
+- Commit history uses Conventional Commit-style prefixes (`refactor:`, `chore:`, etc.) with breaking markers like `refactor!:`. Follow that pattern.
+- PRs should include a concise summary, rationale, and any relevant API behavior changes.
+- Link related issues when applicable and include test output or notes for changes to public responses.
