@@ -8,6 +8,14 @@ T = TypeVar("T")
 
 
 class ErrorDetail:
+    """Body of an error response.
+
+    Serializes to a plain string when only ``message`` is set, or to a
+    structured ``{"code", "message", "meta"}`` dict when ``code`` or
+    ``meta`` are provided. ``meta`` is omitted from the dict form when
+    unset.
+    """
+
     def __init__(
         self,
         *,
@@ -27,6 +35,12 @@ class ErrorDetail:
 
 
 class ErrorFrame:
+    """Top-level error envelope.
+
+    Wraps an :class:`ErrorDetail` under a single ``"detail"`` key so the
+    wire format is always ``{"detail": ...}``.
+    """
+
     def __init__(
         self,
         *,
@@ -41,6 +55,13 @@ class ErrorFrame:
 
 
 class SuccessFrame(Generic[T]):
+    """Top-level success envelope.
+
+    Always serializes a ``"data"`` key (``None`` when no payload was
+    provided). ``"meta"`` is included only when a non-empty mapping is
+    passed.
+    """
+
     def __init__(
         self,
         data: T | None = None,
