@@ -1,5 +1,12 @@
 # jsonframe
 
+[![PyPI version](https://img.shields.io/pypi/v/jsonframe.svg)](https://pypi.org/project/jsonframe/)
+[![Python versions](https://img.shields.io/pypi/pyversions/jsonframe.svg)](https://pypi.org/project/jsonframe/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json)](https://github.com/astral-sh/uv)
+[![Type-checked with ty](https://img.shields.io/badge/type--checked-ty-blue.svg)](https://github.com/astral-sh/ty)
+
 A tiny, opinionated library for **consistent JSON API response frames**.
 
 `jsonframe` standardizes how APIs return successful responses, collections, pagination metadata, and errors — without dragging in heavy specs or forcing a framework.

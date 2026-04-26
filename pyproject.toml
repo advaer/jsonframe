@@ -1,9 +1,10 @@
 [project]
 name = "jsonframe"
-version = "0.3.1"
+version = "0.3.2"
 description = "A small, typed JSON frame (envelope) for API responses and messages."
 readme = "README.md"
-license = { file = "LICENSE" }
+license = "MIT"
+license-files = ["LICENSE"]
 authors = [
     { name = "Rinat Advaer", email = "rinat.advaer@gmail.com" }
 ]
@@ -12,17 +13,21 @@ keywords = ["json", "api", "envelope", "frame", "schema", "pydantic"]
 classifiers = [
   "Development Status :: 2 - Pre-Alpha",
   "Intended Audience :: Developers",
-  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3 :: Only",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Topic :: Software Development :: Libraries",
+  "Topic :: Software Development :: Libraries :: Python Modules",
   "Typing :: Typed",
 ]
 
 dependencies = [
-    "pydantic>=2.12.5",
+    "pydantic>=2.0",
 ]
 
 [project.urls]
@@ -31,10 +36,31 @@ Repository = "https://github.com/advaer/jsonframe"
 Issues = "https://github.com/advaer/jsonframe/issues"
 
 [build-system]
-requires = ["uv_build>=0.9.18,<0.10.0"]
+requires = ["uv_build>=0.9,<0.12"]
 build-backend = "uv_build"
 
 [dependency-groups]
 dev = [
     "pytest>=9.0.2",
+    "ruff>=0.9",
+    "ty>=0.0.1a1",
 ]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "F",    # pyflakes
+    "W",    # pycodestyle warnings
+    "I",    # isort
+    "B",    # flake8-bugbear
+    "UP",   # pyupgrade
+    "SIM",  # flake8-simplify
+]
+
+[tool.ty.src]
+include = ["src", "tests"]

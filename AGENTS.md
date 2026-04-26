@@ -32,13 +32,22 @@ Error (structured): `{"detail": {"code": "...", "message": "...", "meta": {...}}
 ## Build, Test, and Development Commands
 
 ```bash
+uv sync                                         # install dev deps (pytest, ruff, ty)
+uv run ruff check                               # lint
+uv run ruff check --fix                         # lint + autofix
+uv run ruff format                              # format
+uv run ruff format --check                      # check formatting only
+uv run ty check                                 # type-check
 uv run pytest                                   # run all tests
 uv run pytest tests/test_frames.py::test_name   # run a single test
+uv build --no-sources                           # build wheel + sdist as PyPI consumers would see it
 ```
 
 - Package builds use the **uv** `uv_build` backend (see `pyproject.toml`).
-- Version is maintained in both `pyproject.toml` and `__init__.py`.
-- No linter or formatter is configured.
+- Version is defined in `pyproject.toml` only; `__init__.py` reads it via `importlib.metadata`.
+- Lint/format: `ruff` (config under `[tool.ruff]` in `pyproject.toml`, line-length 100, target py310, rules `E F W I B UP SIM`).
+- Type checker: `ty` (config under `[tool.ty.src]`).
+- Before opening a PR, run: `uv run ruff check && uv run ruff format --check && uv run ty check && uv run pytest`.
 
 ## Coding Style & Naming Conventions
 

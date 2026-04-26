@@ -1,7 +1,7 @@
-from jsonframe import ok, error, SuccessFrame, ErrorFrame
-
+from jsonframe import ErrorFrame, SuccessFrame, error, ok
 
 # --- ok() ---
+
 
 def test_ok_default():
     assert ok() == SuccessFrame().to_dict()
@@ -12,10 +12,13 @@ def test_ok_with_data():
 
 
 def test_ok_with_data_and_meta():
-    assert ok(data=[1, 2], meta={"total": 2}) == SuccessFrame(data=[1, 2], meta={"total": 2}).to_dict()
+    assert (
+        ok(data=[1, 2], meta={"total": 2}) == SuccessFrame(data=[1, 2], meta={"total": 2}).to_dict()
+    )
 
 
 # --- error() ---
+
 
 def test_error_default():
     assert error() == ErrorFrame().to_dict()
@@ -30,4 +33,7 @@ def test_error_with_code():
 
 
 def test_error_with_code_and_meta():
-    assert error(message="fail", code="E01", meta={"field": "x"}) == ErrorFrame(message="fail", code="E01", meta={"field": "x"}).to_dict()
+    assert (
+        error(message="fail", code="E01", meta={"field": "x"})
+        == ErrorFrame(message="fail", code="E01", meta={"field": "x"}).to_dict()
+    )

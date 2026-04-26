@@ -8,6 +8,8 @@ T = TypeVar("T")
 
 
 class ErrorDetail:
+    """Error payload; ``to_dict()`` returns a string for plain message, dict when code/meta set."""
+
     def __init__(
         self,
         *,
@@ -27,6 +29,8 @@ class ErrorDetail:
 
 
 class ErrorFrame:
+    """Error response envelope. Wraps an :class:`ErrorDetail` under the ``"detail"`` key."""
+
     def __init__(
         self,
         *,
@@ -41,13 +45,15 @@ class ErrorFrame:
 
 
 class SuccessFrame(Generic[T]):
+    """Success envelope; always emits ``"data"``, emits ``"meta"`` only when provided."""
+
     def __init__(
         self,
         data: T | None = None,
         *,
         meta: dict[str, Any] | None = None,
     ) -> None:
-        self._frame = _SuccessModel(data=data, meta=meta or None)
+        self._frame = _SuccessModel(data=data, meta=meta)
 
     def to_dict(self) -> dict[str, Any]:
         payload = self._frame.model_dump(exclude_none=True)

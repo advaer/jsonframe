@@ -1,7 +1,7 @@
-from jsonframe import SuccessFrame, ErrorDetail, ErrorFrame
-
+from jsonframe import ErrorDetail, ErrorFrame, SuccessFrame
 
 # --- SuccessFrame ---
+
 
 def test_success_default():
     assert SuccessFrame().to_dict() == {"data": None}
@@ -35,7 +35,18 @@ def test_success_pagination_via_meta():
     assert result == {"data": [1, 2, 3], "meta": {"page": page}}
 
 
+def test_success_with_empty_meta_preserves_key():
+    # Passing meta={} explicitly is intentional and should not be silently dropped.
+    assert SuccessFrame(data="x", meta={}).to_dict() == {"data": "x", "meta": {}}
+
+
+def test_success_meta_does_not_shadow_data():
+    result = SuccessFrame(data=1, meta={"data": 2}).to_dict()
+    assert result == {"data": 1, "meta": {"data": 2}}
+
+
 # --- ErrorDetail ---
+
 
 def test_error_detail_simple():
     assert ErrorDetail(message="msg").to_dict() == "msg"
@@ -69,7 +80,17 @@ def test_error_detail_no_error_nesting():
     assert "error" not in result
 
 
+def test_error_detail_default_returns_string():
+    assert isinstance(ErrorDetail(message="msg").to_dict(), str)
+
+
+def test_error_detail_with_empty_meta():
+    result = ErrorDetail(message="msg", meta={}).to_dict()
+    assert result == {"code": None, "message": "msg", "meta": {}}
+
+
 # --- ErrorFrame ---
+
 
 def test_error_frame_simple():
     assert ErrorFrame(message="msg").to_dict() == {"detail": "msg"}
@@ -88,3 +109,13 @@ def test_error_frame_with_meta():
 def test_error_frame_single_key():
     result = ErrorFrame(message="msg", code="x", meta={"k": "v"}).to_dict()
     assert list(result.keys()) == ["detail"]
+
+
+# --- Public API boundary ---
+
+
+def test_internal_models_not_exported():
+    import jsonframe
+
+    for name in ("_SuccessModel", "_ErrorDetailModel"):
+        assert not hasattr(jsonframe, name)
